@@ -170,9 +170,15 @@ function SparseMPO(x::AbstractArray{Union{E,M},3}) where {M<:MPOTensor,E<:Number
     end
     # sum(ismissing.(domspaces)) == 0 || @warn "failed to deduce all domspaces"
 
+    notmissingloc = findfirst(!ismissing(domspaces))
+    domsp = domspaces[notmissingloc]
+    unit = one(collect(sectors(domsp))[1]) # determine relevant unit via given domspaces
+    _oneunit = Vect[sectortype(domsp)](unit=>1)
+    
     for loc in 1:period, j in 1:numrows
         ismissing(domspaces[loc, j]) || continue
-        domspaces[loc, j] = oneunit(Sp) # all(iszero.(x[loc,j,:])) ? zero(Sp) : oneunit(Sp)
+        @show _oneunit
+        domspaces[loc, j] = _oneunit # all(iszero.(x[loc,j,:])) ? zero(Sp) : oneunit(Sp)
     end
 
     ndomspaces = PeriodicArray{Sp}(domspaces)
