@@ -98,6 +98,7 @@ function expectation_value(ψ::FiniteMPS, H::MPOHamiltonian,
     GL = leftenv(envs, L, ψ)
     GR = rightenv(envs, L, ψ)
     AC = ψ.AC[L]
+    @info "from here environment calcs are done"
     E = sum(keys(H[L])) do (j, k)
         return @plansor GL[j][1 2; 3] * AC[3 7; 5] * GR[k][5 8; 6] * conj(AC[1 4; 6]) *
                         H[L][j, k][2 4; 7 8]
