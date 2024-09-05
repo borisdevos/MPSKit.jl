@@ -177,7 +177,6 @@ function SparseMPO(x::AbstractArray{Union{E,M},3}) where {M<:MPOTensor,E<:Number
     
     for loc in 1:period, j in 1:numrows
         ismissing(domspaces[loc, j]) || continue
-        @show _oneunit
         domspaces[loc, j] = _oneunit # all(iszero.(x[loc,j,:])) ? zero(Sp) : oneunit(Sp)
     end
 
