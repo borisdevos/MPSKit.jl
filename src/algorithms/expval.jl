@@ -115,6 +115,8 @@ function expectation_value(ψ::InfiniteMPS, H::MPOHamiltonian,
             ρ_LL = r_LL(ψ, i)
             util = fill_data!(similar(ψ.AL[1], space(envs.lw[H.odim, i + 1], 2)), one)
             GL = leftenv(envs, i, ψ)
+            @info "back in expval"
+            #@show GL
             return @plansor (GL[j] * TransferMatrix(ψ.AL[i], H[i][j, H.odim], ψ.AL[i]))[1 2;
                                                                                         3] *
                             ρ_LL[3; 1] * conj(util[2])
