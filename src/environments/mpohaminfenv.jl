@@ -40,14 +40,10 @@ end
 function environments(ψ::InfiniteMPS, H::MPOHamiltonian; solver=Defaults.linearsolver)
     (lw, rw) = gen_lw_rw(ψ, H)
     envs = MPOHamInfEnv(H, similar(ψ), solver, lw, rw, ReentrantLock())
-    @info "at environments function"
-    #@show envs.lw
     return recalculate!(envs, ψ)
 end
 
 function leftenv(envs::MPOHamInfEnv, pos::Int, ψ)
-    @info "at function leftenv"
-    #@show envs.lw
     check_recalculate!(envs, ψ)
     return envs.lw[:, pos]
 end
@@ -58,16 +54,11 @@ function rightenv(envs::MPOHamInfEnv, pos::Int, ψ)
 end
 
 function recalculate!(envs::MPOHamInfEnv, nstate; tol=envs.solver.tol)
-    @info "at recalculate! function" 
     sameDspace = reduce(&, _lastspace.(envs.lw[1, :]) .== _firstspace.(nstate.CR))
-    @info "before sameDspace check"
-    #@show envs.lw
 
     if !sameDspace
         envs.lw, envs.rw = gen_lw_rw(nstate, envs.opp)
     end
-    @info "after sameDspace check"
-    #@show envs.lw
 
     solver = envs.solver
     solver = solver.tol == tol ? solver : @set solver.tol = tol
@@ -78,16 +69,12 @@ function recalculate!(envs::MPOHamInfEnv, nstate; tol=envs.solver.tol)
 
     envs.dependency = nstate
     envs.solver = solver
-    @info "after calclw"
-    #@show envs.lw
 
     return envs
 end
 
 function calclw!(fixpoints, st::InfiniteMPS, H::MPOHamiltonian;
                  solver=Defaults.linearsolver)
-    @info "start of calclw"
-    @show fixpoints
     len = length(st)
     @assert len == length(H)
 
@@ -95,14 +82,8 @@ function calclw!(fixpoints, st::InfiniteMPS, H::MPOHamiltonian;
     leftutil = similar(st.AL[1], H[1].domspaces[1])
     fill_data!(leftutil, one)
 
-    @info "macroexpanding here"
-    #@macroexpand(@plansor fixpoints[1, 1][-1 -2; -3] = l_LL(st)[-1; -3] * conj(leftutil[-2]))
     @plansor fixpoints[1, 1][-1 -2; -3] = l_LL(st)[-1; -3] * conj(leftutil[-2])
-    # @show l_LL(st)
-    # @show leftutil
     (len > 1) && left_cyclethrough!(1, fixpoints, H, st)
-    @info "after first plansor"
-    @show fixpoints
     for i in 2:size(fixpoints, 1)
         prev = copy(fixpoints[i, 1])
 
@@ -110,13 +91,11 @@ function calclw!(fixpoints, st::InfiniteMPS, H::MPOHamiltonian;
         left_cyclethrough!(i, fixpoints, H, st)
 
         if isid(H, i) # identity matrices; do the hacky renormalization
-            @info "in the identity matrices"
             tm = regularize(TransferMatrix(st.AL, st.AL), l_LL(st), r_LL(st))
             fixpoints[i, 1], convhist = linsolve(flip(tm), fixpoints[i, 1], prev, solver,
                                                  1, -1)
             convhist.converged == 0 &&
                 @warn "GL$i failed to converge: normres = $(convhist.normres)"
-            #@show fixpoints
             (len > 1) && left_cyclethrough!(i, fixpoints, H, st)
 
             #go through the unitcell, again subtracting fixpoints
@@ -127,7 +106,6 @@ function calclw!(fixpoints, st::InfiniteMPS, H::MPOHamiltonian;
             end
 
         else
-            @info "not identity matrices"
             if reduce(&, contains.(H.data, i, i))
                 diag = map(b -> b[i, i], H[:])
                 tm = TransferMatrix(st.AL, diag, st.AL)
@@ -136,12 +114,9 @@ function calclw!(fixpoints, st::InfiniteMPS, H::MPOHamiltonian;
                 convhist.converged == 0 &&
                     @warn "GL$i failed to converge: normres = $(convhist.normres)"
             end
-            #@show fixpoints
             (len > 1) && left_cyclethrough!(i, fixpoints, H, st)
         end
     end
-    @info "after big for loop calclw"
-    #@show fixpoints
 
     return fixpoints
 end
