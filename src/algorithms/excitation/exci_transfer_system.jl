@@ -13,11 +13,18 @@ function left_excitation_transfer_system(lBs, H, exci; mom=exci.momentum,
         T = TransferMatrix(exci.right_gs.AR, H_partial, exci.left_gs.AL)
         start = scale!(last(found[1:i] * T), cis(-mom * len))
         if exci.trivial && isid(H, i)
-            @plansor start[-1 -2; -3 -4] -= start[1 4; -3 2] *
-                                            r_RL(exci.right_gs)[2; 3] *
-                                            τ[3 4; 5 1] *
-                                            l_RL(exci.right_gs)[-1; 6] *
-                                            τ[5 6; -4 -2]
+            util = similar(exci.left_gs.AL[1], H[1].domspaces[1])
+            fill_data!(util, one)
+            # @plansor start[-1 -2; -3 -4] -= start[1 4; -3 2] *
+            #                                 r_RL(exci.right_gs)[2; 3] *
+            #                                 τ[3 4; 5 1] *
+            #                                 l_RL(exci.right_gs)[-1; 6] *
+            #                                 τ[5 6; -4 -2]
+            @plansor start[-1 -2; -3 -4] -= start[2 1; -3 3] * 
+                                            util[1] * 
+                                            r_RL(exci.right_gs)[3;2] * 
+                                            l_RL(exci.right_gs)[-1;-4] * 
+                                            conj(util[-2])
         end
 
         found[i] = add!(start, lBs[i])
