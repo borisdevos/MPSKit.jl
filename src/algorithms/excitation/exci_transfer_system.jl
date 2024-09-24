@@ -68,9 +68,14 @@ function right_excitation_transfer_system(rBs, H, exci; mom=exci.momentum,
         start = scale!(first(T * found[i:odim]), cis(mom * len))
         #@show start
         if exci.trivial && isid(H, i)
-            @plansor start[-1 -2; -3 -4] -= τ[6 2; 3 4] * start[3 4; -3 5] *
-                                            l_LR(exci.right_gs)[5; 2] *
-                                            r_LR(exci.right_gs)[-1; 1] * τ[-2 -4; 1 6]
+            util = similar(exci.left_gs.AL[1], H[1].domspaces[1])
+            fill_data!(util, one)
+            # @plansor start[-1 -2; -3 -4] -= τ[6 2; 3 4] * start[3 4; -3 5] *
+            #                                 l_LR(exci.right_gs)[5; 2] *
+            #                                 r_LR(exci.right_gs)[-1; 1] * τ[-2 -4; 1 6]
+            @plansor start[-1 -2; -3 -4] -= start[2 1; -3 3] * conj(util[1]) *
+                                            l_LR(exci.right_gs)[3; 2] * 
+                                            r_LR(exci.right_gs)[-1; -4] * util[-2]
         end
 
         found[i] = add!(start, rBs[i])
@@ -79,7 +84,10 @@ function right_excitation_transfer_system(rBs, H, exci; mom=exci.momentum,
             if isid(H, i)
                 tm = TransferMatrix(exci.left_gs.AL, exci.right_gs.AR)
                 if exci.trivial
-                    tm = regularize(tm, l_LR(exci.left_gs), r_LR(exci.right_gs))
+                    # tm = regularize(tm, l_LR(exci.left_gs), r_LR(exci.right_gs))
+                    @plansor lLR_util[-1 -2; -3] := l_RL(exci.right_gs)[-1;-3] * conj(util[-2])
+                    @plansor rLR_util[-1 -2; -3] := r_RL(exci.right_gs)[-1;-3] * util[-2]
+                    tm = regularize(tm, lLR_util, rLR_util)
                 end
             else
                 tm = TransferMatrix(exci.left_gs.AL, getindex.(H.data, i, i),
