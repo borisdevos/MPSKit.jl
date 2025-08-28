@@ -4,7 +4,7 @@ println("
 -----------------
 ")
 
-module TestMultifusion
+# module TestMultifusion
 
     using Test, TestExtras
     using MPSKit
@@ -93,11 +93,11 @@ module TestMultifusion
         @test isapprox(E, first(ED); atol = 1.0e-6)
 
         @test_throws ArgumentError("one of Type IsingBimodule doesn't exist") excitations(H, QuasiparticleAnsatz(), ψ)
-        # excE, qp = excitations(H, QuasiparticleAnsatz(), ψ2; sector=C0, num=10) # testing sector kwarg #TODO: get this working
-        # @test variance(qp[1], H) < 1e-8
+        excE, qp = excitations(H, QuasiparticleAnsatz(), ψ2; sector=C0, num=10) # testing sector kwarg
+        @test 0 < variance(qp[1], H) < 1e-8
     end
 
-    @testset "Infinite systems" begin
+    # @testset "Infinite systems" begin
         # Multifusion: effectively studying the KW dual in SSB phase
         g = 1 / 1.5
         H = TFIM_multifusion(; g = g, L = Inf, twosite = true)
@@ -151,6 +151,6 @@ module TestMultifusion
         excZ2_1, qpZ2_1 = excitations(HZ2, QuasiparticleAnsatz(), momentum, gsZ2; sector = Z2Irrep(1))
         @test isapprox(first(excZ2_1), first(excD1); atol = 1.0e-5)
         @test isapprox(first(excZ2_0), first(excD0); atol = 1.0e-5)
-    end
+    # end
 
-end # module TestMultifusion
+# end # module TestMultifusion

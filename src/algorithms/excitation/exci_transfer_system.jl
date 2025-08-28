@@ -5,6 +5,7 @@ function left_excitation_transfer_system(
     len = length(H)
     found = zerovector(GBL)
     odim = length(GBL)
+    @show exci.trivial
 
     for i in 1:odim
         # this operation can in principle be even further optimized for larger unit cells
@@ -17,6 +18,7 @@ function left_excitation_transfer_system(
         if exci.trivial && isidentitylevel(H, i)
             ρ_left = l_RL(exci.right_gs)
             ρ_right = r_RL(exci.right_gs)
+            @show i
             regularize!(start, ρ_right, ρ_left)
         end
 
@@ -27,9 +29,10 @@ function left_excitation_transfer_system(
                 T = TransferMatrix(exci.right_gs.AR, exci.left_gs.AL)
                 if exci.trivial
                     # deal with extra leg
-                    @plansor lRL_util[-1 -2; -3] := l_RL(exci.right_gs)[-1;-3] * conj(util[-2])
-                    @plansor rRL_util[-1 -2; -3] := r_RL(exci.right_gs)[-1;-3] * util[-2]
-                    T = regularize(T, lRL_util, rRL_util)
+                    # @plansor lRL_util[-1 -2; -3] := l_RL(exci.right_gs)[-1;-3] * conj(util[-2])
+                    # @plansor rRL_util[-1 -2; -3] := r_RL(exci.right_gs)[-1;-3] * util[-2]
+                    # T = regularize(T, lRL_util, rRL_util)
+                    T = regularize(T, ρ_left, ρ_right)
                 end
             else
                 T = TransferMatrix(
@@ -77,9 +80,9 @@ function right_excitation_transfer_system(
                 tm = TransferMatrix(exci.left_gs.AL, exci.right_gs.AR)
                 if exci.trivial
                     # deal with extra leg
-                    @plansor lLR_util[-1 -2; -3] := l_LR(exci.left_gs)[-1;-3] * conj(util[-2])
-                    @plansor rLR_util[-1 -2; -3] := r_LR(exci.right_gs)[-1;-3] * util[-2]
-                    tm = regularize(tm, lLR_util, rLR_util)
+                    # @plansor lLR_util[-1 -2; -3] := l_LR(exci.left_gs)[-1;-3] * conj(util[-2])
+                    # @plansor rLR_util[-1 -2; -3] := r_LR(exci.right_gs)[-1;-3] * util[-2]
+                    tm = regularize(tm, ρ_left, ρ_right)
                 end
             else
                 tm = TransferMatrix(
