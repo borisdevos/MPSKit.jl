@@ -107,7 +107,7 @@ module TestMultifusion
         @test isapprox(first(excE_DM), first(excE) + E2; atol = 1.0e-6)
     end
 
-    # @testset "Infinite systems" begin
+    @testset "Infinite systems" begin
         # Multifusion: effectively studying the KW dual in SSB phase
         g = 1 / 4
         H = TFIM_multifusion(; g = g, L = Inf, twosite = true)
