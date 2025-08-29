@@ -130,6 +130,7 @@ function S_zz(::Type{Trivial} = Trivial, ::Type{T} = ComplexF64; spin = 1 // 2) 
     return S_z(Trivial, T; spin) ⊗ S_z(Trivial, T; spin)
 end
 function S_zz(::Type{Z2Irrep}, ::Type{T} = ComplexF64; spin = 1 // 2) where {T <: Number}
+    spin == 1 // 2 || throw(ArgumentError("spin $spin not supported"))
     P = Z2Space(0 => 1, 1 => 1)
     ZZ = zeros(ComplexF64, P ⊗ P ← P ⊗ P)
     flip_charge(charge::Z2Irrep) = only(charge ⊗ Z2Irrep(1))
