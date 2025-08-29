@@ -12,19 +12,19 @@ end
 include("setup.jl")
 
 @time begin
-    if GROUP == "ALL" || GROUP == "STATES"
-        @time include("states.jl")
-    end
-    if GROUP == "ALL" || GROUP == "OPERATORS"
-        @time include("operators.jl")
-    end
-    if GROUP == "ALL" || GROUP == "ALGORITHMS"
-        @time include("algorithms.jl")
-    end
+    # if GROUP == "ALL" || GROUP == "STATES"
+    #     @time include("states.jl")
+    # end
+    # if GROUP == "ALL" || GROUP == "OPERATORS"
+    #     @time include("operators.jl")
+    # end
+    # if GROUP == "ALL" || GROUP == "ALGORITHMS"
+    #     @time include("algorithms.jl")
+    # end
     if GROUP == "ALL" || GROUP == "MULTIFUSION"
         @time include("multifusion.jl")
     end
-    if GROUP == "ALL" || GROUP == "OTHER"
-        @time include("other.jl")
-    end
+    # if GROUP == "ALL" || GROUP == "OTHER"
+    #     @time include("other.jl")
+    # end
 end

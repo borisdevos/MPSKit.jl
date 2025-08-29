@@ -131,7 +131,7 @@ function S_zz(::Type{Trivial} = Trivial, ::Type{T} = ComplexF64; spin = 1 // 2) 
 end
 function S_zz(::Type{Z2Irrep}, ::Type{T} = ComplexF64; spin = 1 // 2) where {T <: Number}
     P = Z2Space(0 => 1, 1 => 1)
-    ZZ = TensorMap(zeros, ComplexF64, P ⊗ P ← P ⊗ P)
+    ZZ = zeros(ComplexF64, P ⊗ P ← P ⊗ P)
     flip_charge(charge::Z2Irrep) = only(charge ⊗ Z2Irrep(1))
     for (s, f) in fusiontrees(ZZ)
         if s.uncoupled == map(flip_charge, f.uncoupled)
